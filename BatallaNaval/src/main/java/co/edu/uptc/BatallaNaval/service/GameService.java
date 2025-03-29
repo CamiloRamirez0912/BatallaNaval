@@ -12,6 +12,8 @@ public class GameService {
     private List<Player> players = new ArrayList<>();
     
     public Player registerPlayer(Player player) {
+        System.out.println("Jugador creado con el usuario: " + player.getUsername());
+
         if (players.isEmpty()) {
             player.setId(1);
         } else if (players.size() == 1) {
