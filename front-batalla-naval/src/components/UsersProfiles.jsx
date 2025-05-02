@@ -5,7 +5,7 @@ const UsersProfiles = ({namePlayer1, namePlayer2}) => {
     <div className='w-full flex h-28 justify-around p-5'>
         <div className='flex justify-center items-center w-[50%] gap-5'>
             <img src="/general.png" alt="icon-user-1" className='w-20 h-20'/>
-            <div className="flex">
+            <div className="flex flex-col">
                 <span className='text-[#1500FF] font-bold text-2xl'>{namePlayer1}</span>
             </div>
         </div>
