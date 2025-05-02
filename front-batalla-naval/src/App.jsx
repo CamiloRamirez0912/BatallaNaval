@@ -1,17 +1,21 @@
-import { BrowserRouter, Route, Router, Routes } from "react-router";
+import { BrowserRouter, Route, Routes } from "react-router";
 import Login from "./pages/Login";
 import BattlePage from "./pages/BattlePage";
-import WebSocketComponent from "./components/WebSocketComponent";
+import PositionShipsPage from "./pages/PositionShipsPage";
+import { WebSockerProvider } from "./context/WebSocketContext";
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login/>}/>
-        <Route path="/battle" element={<BattlePage namePlayer1={"SANTIAGO"} namePlayer2={"NATALIAa"}/>}/>
-        <Route path="/" element={<WebSocketComponent/>}/>
-      </Routes> 
-    </BrowserRouter>
+      <WebSockerProvider>
+        <Routes>
+          <Route path="/" element={<Login/>}/>
+          <Route  path="/position-ships/:gameId/:playerId/:username"element={<PositionShipsPage/>}/>
+          <Route path="/battle/:gameId/:playerId/:username/:opponent" element={<BattlePage/>}/>
+          <Route path="*" element={<h1>Not Found</h1>}/>
+        </Routes> 
+      </WebSockerProvider>
+  </BrowserRouter>
   );
 }
 
