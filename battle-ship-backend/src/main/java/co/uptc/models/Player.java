@@ -21,7 +21,7 @@ public class Player {
         board = new Board();
     }
 
-    public boolean atack(Position position, Board board) {
-        return false;
+    public void newShot(Shot shot){
+        board.shots.add(shot);
     }
 }
