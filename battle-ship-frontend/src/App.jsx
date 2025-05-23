@@ -4,6 +4,8 @@ import BattlePage from "./pages/BattlePage";
 import PositionShipsPage from "./pages/PositionShipsPage";
 import { WebSockerProvider } from "./context/WebSocketContext";
 import RulesPage from "./pages/Rules";
+import Winner from "./pages/Winner";
+import Loser from "./pages/Loser";
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
           <Route  path="/position-ships/:gameId/:playerId/:username"element={<PositionShipsPage/>}/>
           <Route path="/battle/:gameId/:playerId/:username/:opponent" element={<BattlePage/>}/>
           <Route path="/rules" element={<RulesPage/>}/>
+          <Route path="/winner/:username" element={<Winner/>}/>
+          <Route path="/loser/:username" element={<Loser/>}/>
           <Route path="*" element={<h1>Not Found</h1>}/>
         </Routes> 
       </WebSockerProvider>

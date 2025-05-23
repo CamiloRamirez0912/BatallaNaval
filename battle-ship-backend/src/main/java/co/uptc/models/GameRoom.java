@@ -1,6 +1,7 @@
 package co.uptc.models;
 
 import co.uptc.constants.GameStatus;
+import co.uptc.constants.PlayerStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,29 +14,46 @@ public class GameRoom {
 
     protected String gameId;
     protected List<Player> listPlayers;
-    protected Player currentTurn;
+    protected String currentTurn;
     protected Player winner;
     private GameStatus gameStatus;
-    private Board board;
 
     public GameRoom(String idGame) {
         this.gameId = idGame;
         this.gameStatus = GameStatus.WAITING_PLAYERS;
         listPlayers = new ArrayList<>();
-
     }
 
     public void setShipsPlayer(String playerId, List<Ship> ships) {
-        listPlayers.stream().filter(player -> player.getPlayerId().equals(playerId)).findFirst().ifPresent(player -> player.getBoard().setShips(ships));
+        listPlayers.stream().filter(player -> player.getPlayerId().equals(playerId)).findFirst().ifPresent(player -> {
+            player.getBoard().setShips(ships);
+            player.getBoard().generatePositionsShips();
+        });
     }
 
-    public void endGame(){
-
+    public void revalidateStatetGame(){
+        for(Player player: listPlayers){
+            int shipsSunk = 0;
+            for(Ship ship: player.getBoard().getShips()){
+                if(ship.isSunk){
+                    shipsSunk++;
+                }
+            }
+            if(shipsSunk == 5){
+                player.setPlayerStatus(PlayerStatus.LOSE);
+                winner = listPlayers.stream().filter(p ->!p.getPlayerId().equals(player.getPlayerId())).findFirst().orElse(null);
+                winner.setPlayerStatus(PlayerStatus.WIN);
+                gameStatus = GameStatus.FINISHED;
+            }
+        }
     }
 
-    public void switchTurn(){
-
-    }
+    public void switchTurn() {
+        Player player1 = listPlayers.get(0);
+        Player player2 = listPlayers.get(1);
+    
+        currentTurn = currentTurn.equals(player1.getPlayerId()) ? player2.getPlayerId() : player1.getPlayerId();
+    }    
 
     public String addPlayer(String username){
         String playerId = UUID.randomUUID().toString();

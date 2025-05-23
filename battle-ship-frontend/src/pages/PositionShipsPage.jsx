@@ -60,8 +60,6 @@ export default function PositionShipsPage() {
       ships
     };
     sendMessage(stompClient, objectGameUpdate, "finish-positioning");
-    const player = {name: username, gameId}
-    sendMessage(stompClient, player, "play");
   }
 
   const handleReset = () => {setOccupiedCells(initialStateCells)};
@@ -72,6 +70,7 @@ export default function PositionShipsPage() {
         await connect(stompClient, username, gameId, setResultServer);
         const player = {name: username, gameId}
         console.log(player)
+        console.log("Ejecutando el carenalga")
         sendMessage(stompClient, player, "play");
       } catch (error) {
         console.error("❌ Error al conectar:", error);
