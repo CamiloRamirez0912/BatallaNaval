@@ -1,5 +1,5 @@
 import React from "react";
-import CellPlayer from "./CellPlayer";
+import CellPlayer from "./CellPlayer.jsx";
 import { ARR_COORDS_Y } from "../../lib/constants.js";
 
 function RowCellsPlayer({row}) {
