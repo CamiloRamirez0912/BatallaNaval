@@ -82,7 +82,6 @@ public class GameController {
         PlayerDto player = dataShot.getPlayer();
         Shot shot = dataShot.getShot();
         GameRoom gameRoom = gameManager.newShot(player.getGameId(), player.getPlayerId(), shot);
-        System.out.println(gameRoom.getInfoPlayers() + "ME ACOSTUMBRE AL SOFTWARE YA NO PATEA");
         return new DataGameRoom(gameRoom);
     }
 
