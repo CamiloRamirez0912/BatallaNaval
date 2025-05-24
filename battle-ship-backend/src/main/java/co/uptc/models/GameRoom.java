@@ -17,11 +17,13 @@ public class GameRoom {
     protected String currentTurn;
     protected Player winner;
     private GameStatus gameStatus;
+    private Long lastSunkShip; // Nuevo campo
 
     public GameRoom(String idGame) {
         this.gameId = idGame;
         this.gameStatus = GameStatus.WAITING_PLAYERS;
         listPlayers = new ArrayList<>();
+        this.lastSunkShip = null;
     }
 
     public void setShipsPlayer(String playerId, List<Ship> ships) {
@@ -68,5 +70,17 @@ public class GameRoom {
             infoPlayers +=  player.getPlayerId() + "-" + player.getName() + "/";
         }
         return infoPlayers;
+    }
+
+    public void setLastSunkShip(Long shipId) {
+        this.lastSunkShip = shipId;
+    }
+
+    public Long getLastSunkShip() {
+        return lastSunkShip;
+    }
+
+    public void clearLastSunkShip() {
+        this.lastSunkShip = null;
     }
 }

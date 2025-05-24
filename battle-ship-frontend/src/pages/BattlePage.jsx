@@ -14,6 +14,8 @@ function BattlePage() {
   const [dataGameRoom, setDataGameRoom] = useState(null);
   const [time, setTime] = useState(0);
   const [isCurrentTurn, setIsCurrentTurn] = useState(false);
+  const [lastSunkShip, setLastSunkShip] = useState(null); // Nuevo estado
+  
   const player = {
     username,
     gameId,
@@ -52,6 +54,14 @@ function BattlePage() {
   useEffect(() => {
     setIsCurrentTurn(dataGameRoom?.currentTurn == playerId);
     setTime(0);
+    
+    // Verificar si se hundió un barco
+    if (dataGameRoom?.lastSunkShip !== null && dataGameRoom?.lastSunkShip !== undefined && dataGameRoom.lastSunkShip !== lastSunkShip) {
+      const shipNames = ["Acorazado", "Destructor", "Cruzero", "Submarino", "Navío"];
+      const shipName = shipNames[dataGameRoom.lastSunkShip] || "Barco";
+      alert(`¡${shipName} hundido!`);
+      setLastSunkShip(dataGameRoom.lastSunkShip);
+    }
   },[dataGameRoom, isCurrentTurn, playerId])
 
   const handleShot = (row, col) => {

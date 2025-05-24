@@ -63,7 +63,16 @@ public class GameManager {
                     shot.setResult(ShotResult.HIT);
                     player.newShot(shot);
                     gameTimerService.cancelTimer(gameId);
+                    
+                    // Verificar si el barco estaba hundido antes del disparo
+                    boolean wasAlreadySunk = ship.isSunk();
                     ship.determinateIsSunk(player.getBoard().getShots());
+                    
+                    // Si el barco se acaba de hundir, agregar información al GameRoom
+                    if (!wasAlreadySunk && ship.isSunk()) {
+                        gameRoom.setLastSunkShip(ship.getIdShip());
+                    }
+                    
                     gameRoom.revalidateStatetGame();
                     if (gameRoom.getGameStatus() == GameStatus.FINISHED) {
                         activeGames.remove(gameId);
