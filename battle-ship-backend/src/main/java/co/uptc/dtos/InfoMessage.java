@@ -1,17 +1,12 @@
-package co.uptc.models;
+package co.uptc.dtos;
 
+import lombok.Getter;
+
+@Getter
 public class InfoMessage {
     private String content;
 
-    public InfoMessage() {
-
-    }
-
     public InfoMessage(String content) {
         this.content = content;
-    }
-
-    public String getContent() {
-        return content;
     }
 }

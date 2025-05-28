@@ -1,7 +1,10 @@
 package co.uptc.controllers;
 
-import co.uptc.constants.PlayerStatus;
+import co.uptc.dtos.DataGameRoom;
+import co.uptc.dtos.DataShot;
 import co.uptc.dtos.FinishPosition;
+import co.uptc.dtos.InfoMessage;
+import co.uptc.dtos.PlayerDto;
 import co.uptc.services.GameManager;
 import co.uptc.constants.GameStatus;
 import co.uptc.dtos.PlayerDtoGame;
@@ -32,7 +35,7 @@ public class GameController {
     public InfoMessage play(PlayerDtoGame player) {
         String gameId = player.getGameId();
 
-        GameRoom gameRoom = gameManager.findActiveGame(gameId);
+        GameRoom gameRoom = gameManager.findGameRoom(gameId);
         while(gameRoom == null){
             try {
                 Thread.sleep(1000);
@@ -40,7 +43,7 @@ public class GameController {
                 Thread.currentThread().interrupt();
                 break;
             }
-            gameRoom = gameManager.findActiveGame(gameId);
+            gameRoom = gameManager.findGameRoom(gameId);
         }
 
         assert gameRoom != null;
@@ -56,33 +59,40 @@ public class GameController {
     @MessageMapping("/finish-positioning")
     @SendToUser("/queue/position-updates")
     public InfoMessage changeStateGame(FinishPosition finishPosition) {
-        finishPosition.showInfoShips();
-        GameRoom gameRoom = gameManager.findActiveGame(finishPosition.getGameId());
-        gameRoom.getListPlayers().forEach(player -> {
-            if(player.getPlayerId().equals(finishPosition.getPlayerId()) && gameRoom.getGameStatus() == GameStatus.POSIOTIONING){
-                player.setPlayerStatus(PlayerStatus.PLAYING);
-                gameRoom.setShipsPlayer(player.getPlayerId(), finishPosition.getShips());
-                gameManager.cancelTimerGame(gameRoom.getGameId());
-            }
-        });
-
-        boolean isAllPlayersReady = gameRoom.getListPlayers().stream().allMatch(player -> player.getPlayerStatus() == PlayerStatus.PLAYING);
+        GameRoom gameRoom = gameManager.findGameRoom(finishPosition.getGameId());
+        boolean isAllPlayersReady = gameManager.validatePlayerReady(gameRoom, finishPosition);
         if (isAllPlayersReady) {
-            gameRoom.setGameStatus(GameStatus.IN_PROGRESS);
             return new InfoMessage(GameStatus.IN_PROGRESS.toString());
         } else {
             return new InfoMessage(GameStatus.POSIOTIONING.toString());
         }
     }
 
+    @MessageMapping("/gameRoom")
+    @SendToUser("/queue/position-updates")
+    public DataGameRoom getBoards(PlayerDtoGame player){
+        GameRoom game =  gameManager.findGameRoom(player.getGameId());
+        return new DataGameRoom(game);
+    }
+
+    @MessageMapping("/shot")
+    @SendToUser("/queue/position-updates")
+    public DataGameRoom newShot(DataShot dataShot){
+        PlayerDto player = dataShot.getPlayer();
+        Shot shot = dataShot.getShot();
+        GameRoom gameRoom = gameManager.newShot(player.getGameId(), player.getPlayerId(), shot);
+        return new DataGameRoom(gameRoom);
+    }
+
+    @MessageMapping("/disconnect")
+    @SendToUser("/queue/position-updates")
+    public DataGameRoom disconnect(PlayerDtoGame player){
+        GameRoom  gameRoom = gameManager.disconnectGame(player.getGameId());
+        return new DataGameRoom(gameRoom);
+    }
+
     @GetMapping("/name-opponent/{username}/{gameId}")
     public ResponseEntity<String> nameOpponent(@PathVariable String username, @PathVariable String gameId) {
-        GameRoom gameRoom = gameManager.findActiveGame(gameId);
-        String nameOpponent = gameRoom.getListPlayers().stream()
-                .map(Player::getName)
-                .filter(name -> !name.equals(username))
-                .findFirst()
-                .orElse(null);
-        return ResponseEntity.ok(nameOpponent);
+        return ResponseEntity.ok(gameManager.findNameOponnent(gameId, username));
     }
 }

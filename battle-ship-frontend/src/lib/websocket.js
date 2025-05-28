@@ -1,11 +1,18 @@
 import { Client } from "@stomp/stompjs";
 
+const URL_SOCKET = import.meta.env.VITE_BACKEND_SOCKET_URL;
+
 const disconnect = (stompClient) => {
     if (stompClient.current) {
       stompClient.current.deactivate();
-      console.log("🚪 Desconectado del servidor WebSocket");
     }
 };
+
+const disconnectGame = (stompClient, player) => {
+  if(stompClient.current){
+    sendMessage(stompClient, player, "disconnect");
+  }
+}
 
 const connect = (stompClient, username, id, setResultServer) => {
   return new Promise((resolve, reject) => {
@@ -17,9 +24,8 @@ const connect = (stompClient, username, id, setResultServer) => {
     }
 
     stompClient.current = new Client({
-      brokerURL: `ws://localhost:8080/gs-guide-websocket?id=${id}`,
+      brokerURL: `${URL_SOCKET}/gs-guide-websocket?id=${id}`,
       onConnect: () => {
-        console.log("✅ Conectado al servidor WebSocket");
         stompClient.current.subscribe(
           "/user/queue/position-updates",
           (messageServer) => {
@@ -35,7 +41,6 @@ const connect = (stompClient, username, id, setResultServer) => {
         reject(frame.headers.message);
       },
       onWebSocketError: (error) => {
-        console.error("❌ Error en WebSocket: ", error);
         reject(error);
       },
     });
@@ -51,11 +56,10 @@ const sendMessage = (stompClient, object, endpoint) => {
       destination: `/app/${endpoint}`,
       body: JSON.stringify(object),
     });
-    console.log("📩 Mensaje enviado:", object);
   } else {
     console.warn("⚠️ No se puede enviar el mensaje porque la conexión aún no está establecida.");
   }
 };
 
 
-export { connect, disconnect, sendMessage };
+export { connect, disconnect, sendMessage, disconnectGame };

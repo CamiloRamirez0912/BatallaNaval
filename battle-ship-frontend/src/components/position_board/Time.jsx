@@ -15,7 +15,6 @@ function Time({ resultServer }) {
     const handleNavigation = async () => {
       try {
         const response = await getNameOponent(username, gameId);
-        console.log(response);
         const opponent = response.status === 200 ? response.data : "Oponente";
         navigate(`/battle/${gameId}/${playerId}/${username}/${opponent}`);
       } catch (error) {
@@ -24,11 +23,11 @@ function Time({ resultServer }) {
       }
     };
 
-    if (resultServer === IN_PROGRESS || time === 30) {
+    if (resultServer === IN_PROGRESS || time === 90) {
       handleNavigation();
     }
 
-    if (time < 30 && resultServer === POSIOTIONING) {
+    if (time < 90 && resultServer === POSIOTIONING) {
       timer = setInterval(() => {
         setTime((prevTime) => prevTime + 1);
       }, 1000);
@@ -37,8 +36,8 @@ function Time({ resultServer }) {
     return () => clearInterval(timer);
   }, [time, resultServer, navigate, gameId, playerId, username]);
 
-  return resultServer === POSIOTIONING && time < 30 ? (
-    <span className="text-[#1500FF] font-bold text-2xl">{30 - time}</span>
+  return resultServer === POSIOTIONING && time < 90 ? (
+    <span className="text-[#1500FF] font-bold text-2xl">{90 - time}</span>
   ) : (
     <span className="text-red-500 font-bold text-2xl">Tiempo Agotado</span>
   );

@@ -1,20 +1,22 @@
-import { useState } from "react";
-import RowCells from "../board_player/RowCells";
+import { useState, useEffect } from "react";
+import RowCells from "./RowCells";
 import RowNumbers from "../RowNumbers";
 import SelectCellContext from "../../context/SelectCellContext";
 import BoardOponentContext from "../../context/BoardOponentContext";
 
-const BoardOponent = () => {
-
+const BoardOponent = ({sendShot, players, playerId}) => {
   const [stateSelectCell, setStateSelectCell] = useState();
 
   const [boardOponent, setBoardOponent] = useState(
-    Array.from({ length: 10 }, () => Array.from({ length: 10 }, () => ""))
+    Array.from({ length: 10 }, () => Array.from({ length: 10 }, () => ({
+      state: '',
+      isHunk: false,
+    })))
   );
 
+  const player = players.find(player => player.playerId != playerId);
+
   const updateBoardOponent = (row, col, newValue) => {
-    console.log(row + "fila")
-    console.log(col + "columna")
     const newBoard = [...boardOponent];
     newBoard[row] = [...newBoard[row]];
     newBoard[row][col] = newValue;
@@ -22,6 +24,48 @@ const BoardOponent = () => {
     setStateSelectCell(null)
   };
 
+  useEffect(() => {
+    const showAllShots = () => {
+      const shots = player?.board.shots || [];
+
+      const ships = player?.board.ships || [];
+  
+      const newBoard = Array.from({ length: 10 }, () => Array.from({ length: 10 }, () => ({
+        state: '',
+        isSunk: false,
+      })));
+  
+      shots.forEach(shot => {
+        const { x, y } = shot.position;
+        const result = shot.result;
+        if (result === "FAIL") {
+          newBoard[x][y].state = "O";
+        } else if (result === "HIT") {
+          newBoard[x][y].state = "X";
+        }
+      });
+
+      ships.forEach(ship => {
+        if(ship.sunk){
+          const { x, y } = ship.position;
+          const size = ship.size;
+          for(let index = 0; index < size; index ++){
+            if(ship.rotated){
+              newBoard[x + index][y].isSunk = true;
+            }else{
+              newBoard[x][y + index].isSunk = true;
+            }
+          }
+        }
+        
+      })
+  
+      setBoardOponent(newBoard); // Se actualiza el tablero completo una sola vez
+    };
+  
+    showAllShots();
+  }, [player?.board.ships, player?.board.shots]);
+  
   return (
     <div className="w-[50%] h-full flex flex-col items-center justify-center gap-5">
         <div className="w-[450px] h-[450px] grid grid-rows-11">
@@ -43,7 +87,7 @@ const BoardOponent = () => {
         </div>
 
         <button className="bg-[#178911] p-2 rounded-xl text-white font-bold text-xl hover:bg-[#1D5016] cursor-pointer"
-        onClick={() => updateBoardOponent(stateSelectCell.row, stateSelectCell.col, 'X')}>
+        onClick={ () => sendShot(stateSelectCell.row, stateSelectCell.col)}>
           Atacar
         </button>
     </div>

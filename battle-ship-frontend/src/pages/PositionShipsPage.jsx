@@ -53,15 +53,12 @@ export default function PositionShipsPage() {
       }
     });
 
-    console.log(ships);
     const objectGameUpdate = {
       gameId,
       playerId,
       ships
     };
     sendMessage(stompClient, objectGameUpdate, "finish-positioning");
-    const player = {name: username, gameId}
-    sendMessage(stompClient, player, "play");
   }
 
   const handleReset = () => {setOccupiedCells(initialStateCells)};
@@ -71,7 +68,6 @@ export default function PositionShipsPage() {
       try {
         await connect(stompClient, username, gameId, setResultServer);
         const player = {name: username, gameId}
-        console.log(player)
         sendMessage(stompClient, player, "play");
       } catch (error) {
         console.error("❌ Error al conectar:", error);
